@@ -40,3 +40,11 @@ class Asset:
   def toString(self):
     s = (str(self.id) + " : S(" + str(self.sharpe) + ") V(" + str(self.volatility) + ") R(" + str(self.rendement) + ")")
     return s
+
+
+
+def find_asset_with_id(assets, the_id):
+    for asset in assets:
+        if asset.label == the_id:
+            return asset
+

@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 
-import numpy as np
-import random
 import copy
-from asset_2 import Assett
-from data_file_manager import DataFileManager
+from data_manager import DataManager
+from evaluation import Evaluation
+
 CORRELATION_THRESHOLD = 0.5
+MAX_MONEY = 10000000
+dm = DataManager()
+evaluation = Evaluation()
 
 
 class Tree:
 
     def __init__(self):
         self.root = Node(None)
+        self.assets_dict = []
 
     def build(self, assets, n_assets):
-        self.root.init_children(assets, n_assets)
+        self.root.init_children(assets, n_assets, [])
 
     def __str__(self):
         return str(self.root)
@@ -26,21 +29,25 @@ class Node:
         self.asset = asset
         self.children = []
 
-    def init_children(self, assets, depth):
+    def init_children(self, assets, depth, ids_combination):
         print('init_children - depth: {}'.format(depth))
         if depth > 0:
             for i in range(len(assets)):
                 sub_assets, asset = self.get_sub_assets(assets, i)
                 n = Node(asset)
-                if n.init_children(sub_assets, depth - 1):
+                n_ids_combination = copy.copy(ids_combination)
+                n_ids_combination.append(n.asset.id)  # add node n in combination
+                if n.init_children(sub_assets, depth - 1, n_ids_combination):
                     self.children.append(n)
             return len(self.children) > 0
+        else:  # Leaf : Evaluation
+            evaluation.evaluate_with_sharpe_quantities(ids_combination)
         return True
 
     # return a sub assets without the current node (the order doesn't matter)
     # the children whose correlation is under the CORRELATION_THRESHOLD are ignored
     def get_sub_assets(self, assets, index):
-        # we need to move the current asset to save memory: working in place
+        # we_ need to move the current asset to save memory: working in place
         current_asset = assets[index]
         assets[index] = assets[-1]
 
@@ -48,11 +55,9 @@ class Node:
         new_assets = []
         for a in assets[:-1]:
             # check correlation
-            correlation = DataFileManager().get_correlation_dict()[str(current_asset.id)][str(a.id)]
-            print("{}-{}: {}".format(current_asset.id, a.id, correlation))
-            if correlation > CORRELATION_THRESHOLD:
+            # TODO: TEST if DataFileManager().get_correlation_dict()[str(current_asset.id)][str(a.id)] > CORRELATION_THRESHOLD:
                 # add in list only if correlation > THRESHOLD
-                new_assets.append(a)
+            new_assets.append(a)
 
         # set last and current assets in their initial places
         assets[-1] = assets[index]
@@ -74,19 +79,3 @@ class Node:
             s += '{}, '.format(n)
         s += '{}'.format(nodes[-1])
         return s
-
-
-if __name__ == '__main__':
-
-    n_assets = 2
-    assets = [Assett(16, 1.409424248688, 1.409424248688),
-              Assett(31, 0.751849284981, 0.751849284981),
-              Assett(61, 0.507142575734, 0.507142575734)]
-              #Assett(67, 0.972497555641, 0.972497555641,
-              #Assett(70, 1.07826992451, 1.07826992451),
-              #Assett(109, 0.409811278998, 0.409811278998)]
-
-    tree = Tree()
-    tree.build(assets, n_assets)
-    print(tree)
-

@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-from portfolio import PortfolioItem
-
-
 # replace , by . and convert to float
 def string_result_to_float(s):
     return float(s.replace(',', '.'))
@@ -34,3 +31,10 @@ def list_to_str(list):
     if len(list) > 0:
         s += str(list[-1])
     return s
+
+
+def is_in_list(int_list, int_list_list):
+    for l in int_list_list:
+        if int_list == l:
+            return True
+    return False

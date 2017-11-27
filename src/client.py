@@ -5,7 +5,6 @@ from json import dumps, loads
 from httplib2 import Http
 from asset import Asset
 from util import string_result_to_float
-import operator
 
 SHARPE = '20'
 PORTFOLIO_ID = '576'
@@ -96,21 +95,19 @@ class Client:
         # Amount = 25
         amount, currency = s.split()
         amount = amount.replace(',', '.')
-        print "before: " + str(amount) + " " + str(currency)
         t = self.get_currency_rates_dict(True)[currency][to_currency]
-        print "after : " + str(float(amount) * float(t)) + " " + str(currency)
         return float(amount) * float(t)
 
 
         #By Axel
     def fill_all_assets(self):
-        response, content = client.get_all_assets()
+        response, content = self.get_all_assets()
         json_content = loads(content)
         assets = []
         for assets_ids in json_content:
             assets.append(int(assets_ids["ASSET_DATABASE_ID"]['value']))
         response, content = self.get_all_caract(assets)
-        result =[] #tab of assets
+        result = []  # tab of assets
         json_content2 = loads(content)
         for i in range(0, len(json_content) -1):
             asset = json_content[i]
@@ -129,14 +126,23 @@ class Client:
             rendement = asset[1]["21"]["value"]
             rendement_annuel = asset[1]["17"]["value"]
             variance_historique = asset[1]["22"]["value"]
-            result.append(Asset(the_id, label, last_close_value,
+            a = Asset(the_id, label, last_close_value,
                 the_type, volatility, sharpe, rendement, rendement_annuel,
-                variance_historique))
+                variance_historique)
+            result.append(a)
         return result
+
+    # return results and assets_dict
+    def fill_all_assets_split(self):
+        assets_dict = {}  # Assets dictionary
+        assets_results = self.fill_all_assets()
+        for a in assets_results:
+            assets_dict[a.id] = a
+        return assets_results, assets_dict
 
     def get_all_assets(self):
         return self.http.request(
-            "{}asset?currency=EUR&columns=ASSET_DATABASE_ID&columns=LAST_CLOSE_VALUE&columns=LABEL&columns=TYPE&start_date=2012-01-01&end_date=2017-06-30".format(self.url),
+            "{}asset?CURRENCY=EUR&TYPE=STOCK&columns=ASSET_DATABASE_ID&columns=LAST_CLOSE_VALUE&columns=LABEL&columns=TYPE&start_date=2012-01-01&end_date=2017-06-30".format(self.url),
             "GET",
             headers=self.headers)
 
