@@ -7,8 +7,8 @@ from json import dumps
 from data_manager import DataManager
 
 MAX_MONEY = 10000000
-SAVE_PORTFOLIOS = False  # If true, the results will be saved in file
-GENERATE_CORRELATION_DICT = True
+SAVE_PORTFOLIOS = True  # If true, the results will be saved in file
+GENERATE_CORRELATION_DICT = False
 
 # model where the assets with best sharpes are selected
 # a tree is built
@@ -22,12 +22,12 @@ class TreeModel:
         self.best_assets = []
         self.best_sharpe = 0
         self.correlation_dict = {}
-        self.file = open('../out/trees/output_portfolio_1', 'w')
+        self.output_file = open('../out/trees/1', 'w')
+        self.correlation_dict_infile = '../assets/correlation_dict.json'
 
     # get sorted assets (sharpe) and remove those with sharpe <= 0
     @staticmethod
     def select_assets(assets):
-        print('select_assets: length before: {}'.format(len(assets)))
         # Sort assets (reverse)
         return sorted(assets, key=lambda a: a.sharpe, reverse=True)[:25]
 
@@ -37,7 +37,7 @@ class TreeModel:
         asset_ids = [a.id for a in assets]
         # compute correlation dictionary
         if regenerate_corr_dict:
-            correlation_dict_file = open('../assets/output_correlation_dict_4.json', 'w')
+            correlation_dict_file = open(self.correlation_dict_infile, 'w')
             self.correlation_dict = self.client.get_correlation_dict(asset_ids)
             correlation_dict_file.write(dumps(self.correlation_dict))
             correlation_dict_file.close()
@@ -54,7 +54,8 @@ class TreeModel:
             portfolio.build(assets)
             portfolio_sharpe = portfolio.submit()
             if SAVE_PORTFOLIOS:
-                self.file.write('{}\n{}'.format(portfolio, portfolio_sharpe))
+                self.output_file.write('{{ "sharpe": {}, "portfolio": {} }}'.format(portfolio_sharpe, str(portfolio)))
+            print('{{ "sharpe": {}, "portfolio": {} }}'.format(portfolio_sharpe, str(portfolio)))
         # Build tree and evaluate it at the same time
         elif len(assets) > 20:
             tree = Tree()
@@ -62,12 +63,11 @@ class TreeModel:
 
     # Run algorithm to get the best portfolio.
     def run(self, assets):
-        print('run')
         # select assets with sharpe > 0
         assets = self.select_assets(assets)
 
         # Set correlation dictionary
-        self.set_correlation_dict(False)
+        self.set_correlation_dict(GENERATE_CORRELATION_DICT)
         self.generate_portfolio(assets)
 
 
@@ -78,4 +78,4 @@ if __name__ == '__main__':
     assets, assets_dict = c.fill_all_assets_split()
     model = TreeModel()
     model.run(assets)
-    model.file.close()
+    model.output_file.close()

@@ -6,6 +6,7 @@ from evaluation import Evaluation
 
 CORRELATION_THRESHOLD = 0.5
 MAX_MONEY = 10000000
+EVALUATE_QUANTITIES_FROM_SHARPE = False
 dm = DataManager()
 evaluation = Evaluation()
 
@@ -40,8 +41,10 @@ class Node:
                 if n.init_children(sub_assets, depth - 1, n_ids_combination):
                     self.children.append(n)
             return len(self.children) > 0
-        else:  # Leaf : Evaluation
+        elif EVALUATE_QUANTITIES_FROM_SHARPE:  # Leaf : Evaluation
             evaluation.evaluate_with_sharpe_quantities(ids_combination)
+        else:
+            evaluation.evaluate(ids_combination)
         return True
 
     # return a sub assets without the current node (the order doesn't matter)

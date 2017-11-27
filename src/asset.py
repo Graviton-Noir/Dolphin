@@ -11,7 +11,7 @@ from monetaryNumber import MonetaryNumber
 
 class Asset:
 
-  def __init__(self, id, label, priceValue, typeValue,
+  def __init__(self, id, label, priceValue, last_close_value,
   		volatility, sharpe, rendement, rendementAnnuel,
 		varHistorique):
     # ASSET_DATABASE_ID
@@ -22,15 +22,13 @@ class Asset:
 
     # LAST_CLOSE_VALUE_IN_CURR
     self.priceValue = priceValue
-    
-    # TYPE
-    self.typeValue = typeValue
 
     self.volatility = volatility
     self.sharpe = sharpe
     self.rendement = rendement
     self.rendementAnnuel = rendementAnnuel
     self.varHistorique = varHistorique
+    self.last_close_value = last_close_value
 
 
   # Used to compute the NAV. NAV = asset PTF / portfolio PTF

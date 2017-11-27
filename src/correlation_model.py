@@ -5,11 +5,11 @@ from client import Client
 from json import dumps
 from data_manager import DataManager
 
-CORRELATION_THRESHOLD_MIN = -0.2
-CORRELATION_THRESHOLD_MAX = 0.2
+CORRELATION_THRESHOLD_MIN = -0.3
+CORRELATION_THRESHOLD_MAX = 0.3
 MAX_MONEY = 10000000
-SAVE_PORTFOLIOS = False  # If true, the results will be saved in file
-GENERATE_CORRELATION_DICT = True
+SAVE_PORTFOLIOS = True  # If true, the results will be saved in file
+GENERATE_CORRELATION_DICT = False
 
 
 # model based on correlation between assets
@@ -24,8 +24,8 @@ class CorrelationModel:
         self.best_assets = []
         self.best_sharpe = 0
         self.correlation_dict = {}
-        self.file = open('../out/correlations/1', 'w')
-        self.correlation_dict_filepath = '../assets/output_correlation_dict.json'
+        self.file = open('../out/correlations/0.95', 'w')
+        self.correlation_dict_filepath = '../assets/correlation_dict.json'
 
     # get sorted assets (sharpe) and remove those with sharpe <= 0
     @staticmethod
@@ -63,16 +63,17 @@ class CorrelationModel:
                 if CORRELATION_THRESHOLD_MIN < v < CORRELATION_THRESHOLD_MAX:
                     ast_ids.append(k)
 
-            # Compute mean value of correlation between chosen assets
-            sum_correlations = 0
-            for id1 in ast_ids:
-                for id2 in ast_ids:
-                    if id1 != id2:
-                        sum_correlations += self.correlation_dict[id1][id2]
-            mean_correlation = sum_correlations / (len(ast_ids) ^ 2) - len(ast_ids)
-            # if not uncorrelated, break
-            if CORRELATION_THRESHOLD_MIN < mean_correlation < CORRELATION_THRESHOLD_MAX:
-                break
+            if len(ast_ids) > 0:
+                # Compute mean value of correlation between chosen assets
+                sum_correlations = 0
+                for id1 in ast_ids:
+                    for id2 in ast_ids:
+                        if id1 != id2:
+                            sum_correlations += self.correlation_dict[id1][id2]
+                mean_correlation = sum_correlations / ((len(ast_ids) ^ 2) - len(ast_ids))
+                # if not uncorrelated, break
+                if CORRELATION_THRESHOLD_MIN < mean_correlation < CORRELATION_THRESHOLD_MAX:
+                    break
 
             # Build portfolio from ids directly if length = 20
             if len(ast_ids) == 20:
@@ -80,7 +81,8 @@ class CorrelationModel:
                 portfolio.build_from_asset_ids(assets, ast_ids)
                 portfolio_sharpe = portfolio.submit()
                 if SAVE_PORTFOLIOS:
-                    self.file.write('{}\n{}'.format(portfolio, portfolio_sharpe))
+                    self.file.write('{{ "sharpe": {}, "portfolio": {} }}'.format(portfolio_sharpe, str(portfolio)))
+                print('{{ "sharpe": {}, "portfolio": {} }}'.format(portfolio_sharpe, str(portfolio)))
             # Get 20 assets with best sharpes
             elif len(ast_ids) > 20:
                 assets_from_ids = sorted(self.ids_to_assets_array(assets_dict, ast_ids),
@@ -90,7 +92,8 @@ class CorrelationModel:
                 portfolio.build(assets_from_ids[:n_assets])
                 portfolio_sharpe = portfolio.submit()
                 if SAVE_PORTFOLIOS:
-                    self.file.write('{} {}\n'.format(portfolio_sharpe, portfolio))
+                    self.file.write('{{ "sharpe": {}, "portfolio": {} }}\n'.format(portfolio_sharpe, str(portfolio)))
+                print('{{ "sharpe": {}, "portfolio": {} }}'.format(portfolio_sharpe, str(portfolio)))
 
     # Run algorithm to get the best portfolio.
     def run(self, assets):
@@ -105,7 +108,7 @@ class CorrelationModel:
         assets_from_ids = []
         # build assets array from ids
         for id in assets_ids:
-            assets_from_ids.append(assets_dict[id])
+            assets_from_ids.append(assets_dict[str(id)])
         return assets_from_ids
 
 

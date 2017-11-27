@@ -8,7 +8,7 @@ from client import Client
 class DataManager:
     class __Singleton:
         def __init__(self):
-            self.correlation_dict_path = 'output_correlation_dict_4.json'
+            self.correlation_dict_path = '../assets/correlation_dict.json'
             self.file = open(self.correlation_dict_path, 'r')
             self.correlation_dict = None
             self.client = Client()
@@ -39,6 +39,7 @@ class DataManager:
         if self.instance.assets is None:
             self.instance.assets, self.instance.assets_dict = self.client.fill_all_assets_split()
         return self.instance.assets
+
 
 if __name__ == '__main__':
     dfm = DataManager()

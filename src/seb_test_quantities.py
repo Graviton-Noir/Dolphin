@@ -10,7 +10,7 @@ class SebTestQuantitiesModel:
 
     # get assets with sharpe
     def select_assets(self, n_assets):
-        assets = self.client.fill_all_assets()
+        assets, assets_dict = self.client.fill_all_assets_split()
         return sorted(assets, key=lambda a: a.sharpe, reverse=True)[:n_assets]
 
     # generate portfolio: assets with best sharpes
@@ -36,6 +36,30 @@ class SebTestQuantitiesModel:
 
 
 if __name__ == '__main__':
+
+
+    sum = 1143111.3370617537 \
+          + 201799.65011187998 \
+          + 41983.82537747577 \
+          + 506678.801693727 \
+          + 252563.14312428157 \
+          + 337933.37865401985 \
+          + 996871.521969843 \
+          + 2204569.0679060477 \
+          + 26225.363070545176 \
+          + 119063.47694812567 \
+          + 24040.58460676713 \
+          + 94734.48510646823 \
+          + 210655.7377049266 \
+          + 1645040.5128143644 \
+          + 124666.44253315279 \
+          + 277361.38836112 \
+          + 165848.97338770135 \
+          + 347595.8338989143 \
+          + 347575.2072832628 \
+          + 186744.84719262682
+    print(sum)
+
     n_assets = 20
     max_money = 10000000
     model = SebTestQuantitiesModel()

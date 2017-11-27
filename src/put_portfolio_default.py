@@ -39,9 +39,10 @@ if __name__ == '__main__':
     group_id = 576
 
     # get the default portfolio
-    content = client.get_portfolio(default_id)
+    #content = client.get_portfolio(default_id)
     # replace PORTFOLIO_USER_REF by PORTFOLIO_USER3
-    content = content.replace(b'PORTFOLIO_USER_REF', b'PORTFOLIO_USER3')
+    #content = content.replace(b'PORTFOLIO_USER_REF', b'PORTFOLIO_USER3')
     # convert bytes to json
-    json = bytes_to_json(content)
+    #json = bytes_to_json(content)
+    json =
     client.put_portfolio(group_id, json)

@@ -33,8 +33,6 @@ class Client:
 
     # Put portfolio from given assets list (json string)
     def put_portfolio_from_assets(self, portfolio_json):
-        print('put_portfolio_from_assets')
-
         body = {
             "label": "PORTFOLIO_USER3",
             "currency": {
@@ -79,7 +77,7 @@ class Client:
         return self.http.request("{}ratio/invoke".format(self.url),
                 "POST",
                 headers=self.headers,
-                body = dumps(body))
+                body =dumps(body))
 
 
     def get_asset_quote(self, id, start_date, end_date):
@@ -112,22 +110,21 @@ class Client:
         for i in range(0, len(json_content) -1):
             asset = json_content[i]
             #Format "55,55 EUR"
-            last_close_value = self.price_str_to_amount(asset["LAST_CLOSE_VALUE"]["value"], 'EUR')
-            #last_close_value_in_curr = self.price_str_to_amount(asset["LAST_CLOSE_VALUE_IN_CURR"]["value"],
-            #                                                    'EUR')
-            the_type = asset["TYPE"]["value"]
+            last_close_value = asset["LAST_CLOSE_VALUE"]["value"]
+            #last_close_value_in_curr = asset["LAST_CLOSE_VALUE_IN_CURR"]["value"]
+            eur_last_close_value = self.price_str_to_amount(last_close_value, 'EUR')
             label = asset["LABEL"]["value"]
+            the_id = asset["ASSET_DATABASE_ID"]["value"]  # ID
 
             #result from get_all_caract()
-            asset = json_content2.items()[i]
-            the_id = asset[0]  # ID
-            volatility = asset[1]["18"]["value"]
-            sharpe = string_result_to_float(asset[1]["20"]["value"])
-            rendement = asset[1]["21"]["value"]
-            rendement_annuel = asset[1]["17"]["value"]
-            variance_historique = asset[1]["22"]["value"]
-            a = Asset(the_id, label, last_close_value,
-                the_type, volatility, sharpe, rendement, rendement_annuel,
+            asset = json_content2[the_id]
+            volatility = asset["18"]["value"]
+            sharpe = string_result_to_float(asset["20"]["value"])
+            rendement = asset["21"]["value"]
+            rendement_annuel = asset["17"]["value"]
+            variance_historique = asset["22"]["value"]
+            a = Asset(the_id, label, eur_last_close_value, last_close_value,
+                volatility, sharpe, rendement, rendement_annuel,
                 variance_historique)
             result.append(a)
         return result
@@ -142,7 +139,7 @@ class Client:
 
     def get_all_assets(self):
         return self.http.request(
-            "{}asset?CURRENCY=EUR&TYPE=STOCK&columns=ASSET_DATABASE_ID&columns=LAST_CLOSE_VALUE&columns=LABEL&columns=TYPE&start_date=2012-01-01&end_date=2017-06-30".format(self.url),
+            "{}asset?CURRENCY=EUR&TYPE=STOCK&columns=ASSET_DATABASE_ID&columns=TYPE&columns=LAST_CLOSE_VALUE&columns=LABEL&date=2012-01-01".format(self.url),
             "GET",
             headers=self.headers)
 
@@ -202,10 +199,7 @@ class Client:
         return correlation_dict
 
     def get_portfolio_sharpe(self):
-        print('get_portfolio_sharpe')
         response, content = self.post_ratio_invoke([SHARPE], [PORTFOLIO_ID], None, '2012-01-01', '2017-06-30')
-        print(response)
-        print(content)
         return string_result_to_float(loads(content)[PORTFOLIO_ID][SHARPE]["value"])
 
 

@@ -16,11 +16,10 @@ def compute_quantity_by_return(asset):
 
     quantity = 500000 / asset.priceValue
 
+    print "id : " + str(asset.id)
     print "Quantity   = " + str(quantity)
     print "Qtt * " + str(asset.priceValue) + " = " + str(quantity * asset.priceValue)
-
-    return 500000 / asset.priceValue
-
+    return quantity
 
 #def improve_quantity_with_sharpe(portfolio):
 #

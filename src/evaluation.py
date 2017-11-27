@@ -12,7 +12,7 @@ class Evaluation:
     def __init__(self):
         self.best_portfolio = None
         self.best_sharpe = None
-        self.out_file = open('../out/trees/2-browse_check_evaluated_20_k', 'w')
+        self.out_file = open('../out/trees/1', 'w')
         self.dm = DataManager()
         # list of combinations already evaluated. each of them are ordered
         # ex: BACD -> [order] -> ABCD -> [is in list?] -> already evaluated or not.

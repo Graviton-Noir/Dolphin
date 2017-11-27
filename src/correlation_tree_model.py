@@ -6,11 +6,11 @@ from tree import Tree, Node
 from json import dumps
 from data_manager import DataManager
 
-CORRELATION_THRESHOLD_MIN = -0.2
-CORRELATION_THRESHOLD_MAX = 0.2
+CORRELATION_THRESHOLD_MIN = -0.3
+CORRELATION_THRESHOLD_MAX = 0.3
 MAX_MONEY = 10000000
-SAVE_PORTFOLIOS = False  # If true, the results will be saved in file
-GENERATE_CORRELATION_DICT = True
+SAVE_PORTFOLIOS = True  # If true, the results will be saved in file
+GENERATE_CORRELATION_DICT = False
 
 
 # model where the assets with best sharpes are selected
@@ -26,7 +26,7 @@ class CorrelationTreeModel:
         self.best_sharpe = 0
         self.correlation_dict = {}
         self.file = open('../out/correlation_trees/1', 'w')
-        self.correlation_dict_filepath = '../assets/output_correlation_dict.json'
+        self.correlation_dict_filepath = '../assets/correlation_dict.json'
 
     # get sorted assets (sharpe) and remove those with sharpe <= 0
     @staticmethod
@@ -83,7 +83,8 @@ class CorrelationTreeModel:
                 portfolio.build_from_asset_ids(assets, ast_ids)
                 portfolio_sharpe = portfolio.submit()
                 if SAVE_PORTFOLIOS:
-                    self.file.write('{}\n{}'.format(portfolio, portfolio_sharpe))
+                    self.file.write('{{ "sharpe": {}, "portfolio": {} }}'.format(portfolio_sharpe, str(portfolio)))
+                print('{{ "sharpe": {}, "portfolio": {} }}'.format(portfolio_sharpe, str(portfolio)))
             # Build tree and evaluate it at the same time
             elif len(assets) > 20:
                 tree = Tree()
