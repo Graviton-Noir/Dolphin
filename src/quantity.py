@@ -10,10 +10,8 @@
 
 
 def compute_quantity_by_return(asset):
-    # Let's set a quantity to get 500k€, which is 1/20 of 10M€
-    if asset.priceValue < 0:
-        print "WOLOLO on a un price value negatif ici"
 
+    # Let's set a quantity to get 500k€, which is 1/20 of 10M€
     quantity = 500000 / asset.priceValue
 
     print "id : " + str(asset.id)
